@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 app.secret_key = '123456'
 
-# LIBERAR IFRAME BLOGSPOT
+# LIBERAR IFRAME
 @app.after_request
 def after_request(response):
 
@@ -72,6 +72,7 @@ def login():
         senha = request.form['senha']
 
         conexao = psycopg2.connect(DATABASE_URL)
+
         cursor = conexao.cursor()
 
         cursor.execute(
@@ -91,7 +92,7 @@ def login():
 
     return render_template('login.html')
 
-# CADASTRO USUARIO
+# CADASTRO
 @app.route('/cadastro', methods=['GET', 'POST'])
 def cadastro():
 
@@ -101,6 +102,7 @@ def cadastro():
         senha = request.form['senha']
 
         conexao = psycopg2.connect(DATABASE_URL)
+
         cursor = conexao.cursor()
 
         cursor.execute(
@@ -109,6 +111,7 @@ def cadastro():
         )
 
         conexao.commit()
+
         conexao.close()
 
         return redirect('/login')
@@ -128,6 +131,7 @@ def logout():
 def home():
 
     if 'usuario' not in session:
+
         return redirect('/login')
 
     if request.method == 'POST':
@@ -136,6 +140,7 @@ def home():
         telefone = request.form['telefone']
 
         conexao = psycopg2.connect(DATABASE_URL)
+
         cursor = conexao.cursor()
 
         cursor.execute(
@@ -144,9 +149,11 @@ def home():
         )
 
         conexao.commit()
+
         conexao.close()
 
     conexao = psycopg2.connect(DATABASE_URL)
+
     cursor = conexao.cursor()
 
     cursor.execute('SELECT * FROM clientes')
@@ -159,136 +166,6 @@ def home():
         'index.html',
         clientes=clientes
     )
-
-# EXCLUIR CLIENTE
-@app.route('/excluir/<int:id>')
-def excluir(id):
-
-    conexao = psycopg2.connect(DATABASE_URL)
-    cursor = conexao.cursor()
-
-    cursor.execute(
-        'DELETE FROM clientes WHERE id = %s',
-        (id,)
-    )
-
-    conexao.commit()
-    conexao.close()
-
-    return redirect('/')
-
-# CARROS
-@app.route('/carros', methods=['GET', 'POST'])
-def carros():
-
-    if 'usuario' not in session:
-        return redirect('/login')
-
-    if request.method == 'POST':
-
-        modelo = request.form['modelo']
-        marca = request.form['marca']
-        ano = request.form['ano']
-
-        conexao = psycopg2.connect(DATABASE_URL)
-        cursor = conexao.cursor()
-
-        cursor.execute(
-            'INSERT INTO carros (modelo, marca, ano) VALUES (%s, %s, %s)',
-            (modelo, marca, ano)
-        )
-
-        conexao.commit()
-        conexao.close()
-
-    conexao = psycopg2.connect(DATABASE_URL)
-    cursor = conexao.cursor()
-
-    cursor.execute('SELECT * FROM carros')
-
-    lista_carros = cursor.fetchall()
-
-    conexao.close()
-
-    return render_template(
-        'carros.html',
-        carros=lista_carros
-    )
-
-# EXCLUIR CARRO
-@app.route('/excluir_carro/<int:id>')
-def excluir_carro(id):
-
-    conexao = psycopg2.connect(DATABASE_URL)
-    cursor = conexao.cursor()
-
-    cursor.execute(
-        'DELETE FROM carros WHERE id = %s',
-        (id,)
-    )
-
-    conexao.commit()
-    conexao.close()
-
-    return redirect('/carros')
-
-# ALUGUEIS
-@app.route('/alugueis', methods=['GET', 'POST'])
-def alugueis():
-
-    if 'usuario' not in session:
-        return redirect('/login')
-
-    conexao = psycopg2.connect(DATABASE_URL)
-    cursor = conexao.cursor()
-
-    if request.method == 'POST':
-
-        cliente = request.form['cliente']
-        carro = request.form['carro']
-        dias = request.form['dias']
-
-        cursor.execute(
-            'INSERT INTO alugueis (cliente, carro, dias) VALUES (%s, %s, %s)',
-            (cliente, carro, dias)
-        )
-
-        conexao.commit()
-
-    cursor.execute('SELECT * FROM alugueis')
-    lista_alugueis = cursor.fetchall()
-
-    cursor.execute('SELECT nome FROM clientes')
-    clientes = cursor.fetchall()
-
-    cursor.execute('SELECT modelo FROM carros')
-    carros = cursor.fetchall()
-
-    conexao.close()
-
-    return render_template(
-        'alugueis.html',
-        alugueis=lista_alugueis,
-        clientes=clientes,
-        carros=carros
-    )
-
-# EXCLUIR ALUGUEL
-@app.route('/excluir_aluguel/<int:id>')
-def excluir_aluguel(id):
-
-    conexao = psycopg2.connect(DATABASE_URL)
-    cursor = conexao.cursor()
-
-    cursor.execute(
-        'DELETE FROM alugueis WHERE id = %s',
-        (id,)
-    )
-
-    conexao.commit()
-    conexao.close()
-
-    return redirect('/alugueis')
 
 if __name__ == '__main__':
     app.run(debug=True)
