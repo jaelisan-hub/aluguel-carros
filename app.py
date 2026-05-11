@@ -96,15 +96,46 @@ def cadastro():
 
     return render_template('cadastro.html')
 
-# HOME
-@app.route('/')
+ # HOME CLIENTES
+@app.route('/', methods=['GET', 'POST'])
 def home():
 
     if 'usuario' not in session:
 
         return redirect('/login')
 
-    return render_template('index.html')
+    if request.method == 'POST':
+
+        nome = request.form['nome']
+        telefone = request.form['telefone']
+
+        conexao = sqlite3.connect('banco.db')
+
+        cursor = conexao.cursor()
+
+        cursor.execute(
+            'INSERT INTO clientes (nome, telefone) VALUES (?, ?)',
+            (nome, telefone)
+        )
+
+        conexao.commit()
+
+        conexao.close()
+
+    conexao = sqlite3.connect('banco.db')
+
+    cursor = conexao.cursor()
+
+    cursor.execute('SELECT * FROM clientes')
+
+    clientes = cursor.fetchall()
+
+    conexao.close()
+
+    return render_template(
+        'index.html',
+        clientes=clientes
+    )
 
 # LOGOUT
 @app.route('/logout')
