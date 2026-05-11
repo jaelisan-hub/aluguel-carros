@@ -5,11 +5,19 @@ app = Flask(__name__)
 
 app.secret_key = '123456'
 
-# BANCO
+# LIBERAR IFRAME PARA BLOGSPOT
+@app.after_request
+def after_request(response):
+
+    response.headers['X-Frame-Options'] = 'ALLOWALL'
+
+    return response
+
+# CRIAR BANCO
 conexao = sqlite3.connect('banco.db')
 cursor = conexao.cursor()
 
-# CLIENTES
+# TABELA CLIENTES
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS clientes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -18,7 +26,7 @@ CREATE TABLE IF NOT EXISTS clientes (
 )
 ''')
 
-# CARROS
+# TABELA CARROS
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS carros (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -28,7 +36,7 @@ CREATE TABLE IF NOT EXISTS carros (
 )
 ''')
 
-# ALUGUEIS
+# TABELA ALUGUEIS
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS alugueis (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -66,7 +74,7 @@ def logout():
 
     return redirect('/login')
 
-# CLIENTES
+# PAGINA CLIENTES
 @app.route('/', methods=['GET', 'POST'])
 def home():
 
@@ -120,7 +128,7 @@ def excluir(id):
 
     return redirect('/')
 
-# CARROS
+# PAGINA CARROS
 @app.route('/carros', methods=['GET', 'POST'])
 def carros():
 
@@ -175,7 +183,7 @@ def excluir_carro(id):
 
     return redirect('/carros')
 
-# ALUGUEIS
+# PAGINA ALUGUEIS
 @app.route('/alugueis', methods=['GET', 'POST'])
 def alugueis():
 
