@@ -1,11 +1,12 @@
 from flask import Flask, render_template, request, redirect, session
-import sqlite3
+import psycopg2
+import os
 
 app = Flask(__name__)
 
 app.secret_key = '123456'
 
-# LIBERAR IFRAME PARA BLOGSPOT
+# LIBERAR IFRAME BLOGSPOT
 @app.after_request
 def after_request(response):
 
@@ -13,36 +14,48 @@ def after_request(response):
 
     return response
 
-# CRIAR BANCO
-conexao = sqlite3.connect('banco.db')
+# CONEXAO POSTGRESQL
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+conexao = psycopg2.connect(DATABASE_URL)
+
 cursor = conexao.cursor()
 
 # TABELA CLIENTES
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS clientes (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nome TEXT,
-    telefone TEXT
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(200),
+    telefone VARCHAR(200)
 )
 ''')
 
 # TABELA CARROS
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS carros (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    modelo TEXT,
-    marca TEXT,
-    ano TEXT
+    id SERIAL PRIMARY KEY,
+    modelo VARCHAR(200),
+    marca VARCHAR(200),
+    ano VARCHAR(200)
 )
 ''')
 
 # TABELA ALUGUEIS
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS alugueis (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    cliente TEXT,
-    carro TEXT,
-    dias TEXT
+    id SERIAL PRIMARY KEY,
+    cliente VARCHAR(200),
+    carro VARCHAR(200),
+    dias VARCHAR(200)
+)
+''')
+
+# TABELA USUARIOS
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS usuarios (
+    id SERIAL PRIMARY KEY,
+    usuario VARCHAR(200),
+    senha VARCHAR(200)
 )
 ''')
 
@@ -58,13 +71,49 @@ def login():
         usuario = request.form['usuario']
         senha = request.form['senha']
 
-        if usuario == 'admin' and senha == '123':
+        conexao = psycopg2.connect(DATABASE_URL)
+        cursor = conexao.cursor()
+
+        cursor.execute(
+            'SELECT * FROM usuarios WHERE usuario = %s AND senha = %s',
+            (usuario, senha)
+        )
+
+        usuario_encontrado = cursor.fetchone()
+
+        conexao.close()
+
+        if usuario_encontrado:
 
             session['usuario'] = usuario
 
             return redirect('/')
 
     return render_template('login.html')
+
+# CADASTRO USUARIO
+@app.route('/cadastro', methods=['GET', 'POST'])
+def cadastro():
+
+    if request.method == 'POST':
+
+        usuario = request.form['usuario']
+        senha = request.form['senha']
+
+        conexao = psycopg2.connect(DATABASE_URL)
+        cursor = conexao.cursor()
+
+        cursor.execute(
+            'INSERT INTO usuarios (usuario, senha) VALUES (%s, %s)',
+            (usuario, senha)
+        )
+
+        conexao.commit()
+        conexao.close()
+
+        return redirect('/login')
+
+    return render_template('cadastro.html')
 
 # LOGOUT
 @app.route('/logout')
@@ -74,7 +123,7 @@ def logout():
 
     return redirect('/login')
 
-# PAGINA CLIENTES
+# CLIENTES
 @app.route('/', methods=['GET', 'POST'])
 def home():
 
@@ -86,18 +135,18 @@ def home():
         nome = request.form['nome']
         telefone = request.form['telefone']
 
-        conexao = sqlite3.connect('banco.db')
+        conexao = psycopg2.connect(DATABASE_URL)
         cursor = conexao.cursor()
 
         cursor.execute(
-            'INSERT INTO clientes (nome, telefone) VALUES (?, ?)',
+            'INSERT INTO clientes (nome, telefone) VALUES (%s, %s)',
             (nome, telefone)
         )
 
         conexao.commit()
         conexao.close()
 
-    conexao = sqlite3.connect('banco.db')
+    conexao = psycopg2.connect(DATABASE_URL)
     cursor = conexao.cursor()
 
     cursor.execute('SELECT * FROM clientes')
@@ -115,11 +164,11 @@ def home():
 @app.route('/excluir/<int:id>')
 def excluir(id):
 
-    conexao = sqlite3.connect('banco.db')
+    conexao = psycopg2.connect(DATABASE_URL)
     cursor = conexao.cursor()
 
     cursor.execute(
-        'DELETE FROM clientes WHERE id = ?',
+        'DELETE FROM clientes WHERE id = %s',
         (id,)
     )
 
@@ -128,7 +177,7 @@ def excluir(id):
 
     return redirect('/')
 
-# PAGINA CARROS
+# CARROS
 @app.route('/carros', methods=['GET', 'POST'])
 def carros():
 
@@ -141,18 +190,18 @@ def carros():
         marca = request.form['marca']
         ano = request.form['ano']
 
-        conexao = sqlite3.connect('banco.db')
+        conexao = psycopg2.connect(DATABASE_URL)
         cursor = conexao.cursor()
 
         cursor.execute(
-            'INSERT INTO carros (modelo, marca, ano) VALUES (?, ?, ?)',
+            'INSERT INTO carros (modelo, marca, ano) VALUES (%s, %s, %s)',
             (modelo, marca, ano)
         )
 
         conexao.commit()
         conexao.close()
 
-    conexao = sqlite3.connect('banco.db')
+    conexao = psycopg2.connect(DATABASE_URL)
     cursor = conexao.cursor()
 
     cursor.execute('SELECT * FROM carros')
@@ -170,11 +219,11 @@ def carros():
 @app.route('/excluir_carro/<int:id>')
 def excluir_carro(id):
 
-    conexao = sqlite3.connect('banco.db')
+    conexao = psycopg2.connect(DATABASE_URL)
     cursor = conexao.cursor()
 
     cursor.execute(
-        'DELETE FROM carros WHERE id = ?',
+        'DELETE FROM carros WHERE id = %s',
         (id,)
     )
 
@@ -183,14 +232,14 @@ def excluir_carro(id):
 
     return redirect('/carros')
 
-# PAGINA ALUGUEIS
+# ALUGUEIS
 @app.route('/alugueis', methods=['GET', 'POST'])
 def alugueis():
 
     if 'usuario' not in session:
         return redirect('/login')
 
-    conexao = sqlite3.connect('banco.db')
+    conexao = psycopg2.connect(DATABASE_URL)
     cursor = conexao.cursor()
 
     if request.method == 'POST':
@@ -200,7 +249,7 @@ def alugueis():
         dias = request.form['dias']
 
         cursor.execute(
-            'INSERT INTO alugueis (cliente, carro, dias) VALUES (?, ?, ?)',
+            'INSERT INTO alugueis (cliente, carro, dias) VALUES (%s, %s, %s)',
             (cliente, carro, dias)
         )
 
@@ -228,11 +277,11 @@ def alugueis():
 @app.route('/excluir_aluguel/<int:id>')
 def excluir_aluguel(id):
 
-    conexao = sqlite3.connect('banco.db')
+    conexao = psycopg2.connect(DATABASE_URL)
     cursor = conexao.cursor()
 
     cursor.execute(
-        'DELETE FROM alugueis WHERE id = ?',
+        'DELETE FROM alugueis WHERE id = %s',
         (id,)
     )
 
