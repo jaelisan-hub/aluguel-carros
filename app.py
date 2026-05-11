@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, redirect, session
-import psycopg2
-import os
+import sqlite3
 
 app = Flask(__name__)
 
@@ -14,52 +13,31 @@ def after_request(response):
 
     return response
 
-# CONEXAO POSTGRESQL
-DATABASE_URL = os.environ.get('DATABASE_URL')
-
-conexao = psycopg2.connect(DATABASE_URL)
+# CRIAR BANCO
+conexao = sqlite3.connect('banco.db')
 
 cursor = conexao.cursor()
-
-# TABELA CLIENTES
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS clientes (
-    id SERIAL PRIMARY KEY,
-    nome VARCHAR(200),
-    telefone VARCHAR(200)
-)
-''')
-
-# TABELA CARROS
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS carros (
-    id SERIAL PRIMARY KEY,
-    modelo VARCHAR(200),
-    marca VARCHAR(200),
-    ano VARCHAR(200)
-)
-''')
-
-# TABELA ALUGUEIS
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS alugueis (
-    id SERIAL PRIMARY KEY,
-    cliente VARCHAR(200),
-    carro VARCHAR(200),
-    dias VARCHAR(200)
-)
-''')
 
 # TABELA USUARIOS
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS usuarios (
-    id SERIAL PRIMARY KEY,
-    usuario VARCHAR(200),
-    senha VARCHAR(200)
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    usuario TEXT,
+    senha TEXT
+)
+''')
+
+# TABELA CLIENTES
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS clientes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT,
+    telefone TEXT
 )
 ''')
 
 conexao.commit()
+
 conexao.close()
 
 # LOGIN
@@ -71,12 +49,12 @@ def login():
         usuario = request.form['usuario']
         senha = request.form['senha']
 
-        conexao = psycopg2.connect(DATABASE_URL)
+        conexao = sqlite3.connect('banco.db')
 
         cursor = conexao.cursor()
 
         cursor.execute(
-            'SELECT * FROM usuarios WHERE usuario = %s AND senha = %s',
+            'SELECT * FROM usuarios WHERE usuario = ? AND senha = ?',
             (usuario, senha)
         )
 
@@ -101,12 +79,12 @@ def cadastro():
         usuario = request.form['usuario']
         senha = request.form['senha']
 
-        conexao = psycopg2.connect(DATABASE_URL)
+        conexao = sqlite3.connect('banco.db')
 
         cursor = conexao.cursor()
 
         cursor.execute(
-            'INSERT INTO usuarios (usuario, senha) VALUES (%s, %s)',
+            'INSERT INTO usuarios (usuario, senha) VALUES (?, ?)',
             (usuario, senha)
         )
 
@@ -118,6 +96,16 @@ def cadastro():
 
     return render_template('cadastro.html')
 
+# HOME
+@app.route('/')
+def home():
+
+    if 'usuario' not in session:
+
+        return redirect('/login')
+
+    return render_template('index.html')
+
 # LOGOUT
 @app.route('/logout')
 def logout():
@@ -125,47 +113,6 @@ def logout():
     session.clear()
 
     return redirect('/login')
-
-# CLIENTES
-@app.route('/', methods=['GET', 'POST'])
-def home():
-
-    if 'usuario' not in session:
-
-        return redirect('/login')
-
-    if request.method == 'POST':
-
-        nome = request.form['nome']
-        telefone = request.form['telefone']
-
-        conexao = psycopg2.connect(DATABASE_URL)
-
-        cursor = conexao.cursor()
-
-        cursor.execute(
-            'INSERT INTO clientes (nome, telefone) VALUES (%s, %s)',
-            (nome, telefone)
-        )
-
-        conexao.commit()
-
-        conexao.close()
-
-    conexao = psycopg2.connect(DATABASE_URL)
-
-    cursor = conexao.cursor()
-
-    cursor.execute('SELECT * FROM clientes')
-
-    clientes = cursor.fetchall()
-
-    conexao.close()
-
-    return render_template(
-        'index.html',
-        clientes=clientes
-    )
 
 if __name__ == '__main__':
     app.run(debug=True)
