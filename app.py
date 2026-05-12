@@ -182,9 +182,6 @@ def carros():
             (modelo, marca, ano)
         )
 
-        conexao.commit()
-
-        conexao.close()
 
     conexao = sqlite3.connect('banco.db')
 
@@ -261,6 +258,9 @@ def alugueis():
         clientes=clientes,
         carros=carros
     )
+conexao.commit()
+
+conexao.close()
 
 if __name__ == '__main__':
     app.run(debug=True)
