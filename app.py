@@ -7,9 +7,9 @@ app = Flask(__name__)
 app.secret_key = '123456'
 
 # CONEXAO POSTGRESQL
-DATABASE_URL = os.environ.get('DATABASE_URL')
+DATABASE_URL = 'postgresql://locadora_v5d7_user:ZIa4dfq1MOZvXfNXCgW0UcmNZH0sFbMk@dpg-d815iijrjlhs73assr10-a.virginia-postgres.render.com/locadora_v5d7'
 
-print(DATABASE_URL)
+
 
 def conectar():
     return psycopg2.connect(DATABASE_URL)
