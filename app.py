@@ -10,10 +10,9 @@ app.secret_key = '123456'
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
 def conectar():
-
     return psycopg2.connect(DATABASE_URL)
 
-# LIBERAR IFRAME
+# LIBERAR IFRAME BLOGSPOT
 @app.after_request
 def after_request(response):
 
@@ -26,7 +25,7 @@ conexao = conectar()
 
 cursor = conexao.cursor()
 
-# USUARIOS
+# TABELA USUARIOS
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS usuarios (
     id SERIAL PRIMARY KEY,
@@ -35,7 +34,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
 )
 ''')
 
-# CLIENTES
+# TABELA CLIENTES
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS clientes (
     id SERIAL PRIMARY KEY,
@@ -44,7 +43,7 @@ CREATE TABLE IF NOT EXISTS clientes (
 )
 ''')
 
-# CARROS
+# TABELA CARROS
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS carros (
     id SERIAL PRIMARY KEY,
@@ -54,7 +53,7 @@ CREATE TABLE IF NOT EXISTS carros (
 )
 ''')
 
-# ALUGUEIS
+# TABELA ALUGUEIS
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS alugueis (
     id SERIAL PRIMARY KEY,
@@ -100,7 +99,7 @@ def login():
 
     return render_template('login.html')
 
-# CADASTRO USUARIO
+# CADASTRO
 @app.route('/cadastro', methods=['GET', 'POST'])
 def cadastro():
 
@@ -161,6 +160,25 @@ def home():
         clientes=clientes
     )
 
+# EXCLUIR CLIENTE
+@app.route('/excluir/<int:id>')
+def excluir(id):
+
+    conexao = conectar()
+
+    cursor = conexao.cursor()
+
+    cursor.execute(
+        'DELETE FROM clientes WHERE id = %s',
+        (id,)
+    )
+
+    conexao.commit()
+
+    conexao.close()
+
+    return redirect('/')
+
 # CARROS
 @app.route('/carros', methods=['GET', 'POST'])
 def carros():
@@ -200,6 +218,25 @@ def carros():
         'carros.html',
         carros=carros
     )
+
+# EXCLUIR CARRO
+@app.route('/excluir_carro/<int:id>')
+def excluir_carro(id):
+
+    conexao = conectar()
+
+    cursor = conexao.cursor()
+
+    cursor.execute(
+        'DELETE FROM carros WHERE id = %s',
+        (id,)
+    )
+
+    conexao.commit()
+
+    conexao.close()
+
+    return redirect('/carros')
 
 # ALUGUEIS
 @app.route('/alugueis', methods=['GET', 'POST'])
@@ -253,6 +290,25 @@ def alugueis():
         clientes=clientes,
         carros=carros
     )
+
+# EXCLUIR ALUGUEL
+@app.route('/excluir_aluguel/<int:id>')
+def excluir_aluguel(id):
+
+    conexao = conectar()
+
+    cursor = conexao.cursor()
+
+    cursor.execute(
+        'DELETE FROM alugueis WHERE id = %s',
+        (id,)
+    )
+
+    conexao.commit()
+
+    conexao.close()
+
+    return redirect('/alugueis')
 
 # LOGOUT
 @app.route('/logout')
