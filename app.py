@@ -46,10 +46,6 @@ CREATE TABLE IF NOT EXISTS carros (
 )
 ''')
 
-conexao.commit()
-
-conexao.close()
-
 # TABELA ALUGUEIS
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS alugueis (
@@ -61,6 +57,9 @@ CREATE TABLE IF NOT EXISTS alugueis (
     total TEXT
 )
 ''')
+
+conexao.commit()
+conexao.close()
 
 # LOGIN
 @app.route('/login', methods=['GET', 'POST'])
