@@ -36,6 +36,16 @@ CREATE TABLE IF NOT EXISTS clientes (
 )
 ''')
 
+# TABELA CARROS
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS carros (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    modelo TEXT,
+    marca TEXT,
+    ano TEXT
+)
+''')
+
 conexao.commit()
 
 conexao.close()
@@ -96,7 +106,7 @@ def cadastro():
 
     return render_template('cadastro.html')
 
- # HOME CLIENTES
+# HOME CLIENTES
 @app.route('/', methods=['GET', 'POST'])
 def home():
 
@@ -135,6 +145,48 @@ def home():
     return render_template(
         'index.html',
         clientes=clientes
+    )
+
+# CARROS
+@app.route('/carros', methods=['GET', 'POST'])
+def carros():
+
+    if 'usuario' not in session:
+
+        return redirect('/login')
+
+    if request.method == 'POST':
+
+        modelo = request.form['modelo']
+        marca = request.form['marca']
+        ano = request.form['ano']
+
+        conexao = sqlite3.connect('banco.db')
+
+        cursor = conexao.cursor()
+
+        cursor.execute(
+            'INSERT INTO carros (modelo, marca, ano) VALUES (?, ?, ?)',
+            (modelo, marca, ano)
+        )
+
+        conexao.commit()
+
+        conexao.close()
+
+    conexao = sqlite3.connect('banco.db')
+
+    cursor = conexao.cursor()
+
+    cursor.execute('SELECT * FROM carros')
+
+    carros = cursor.fetchall()
+
+    conexao.close()
+
+    return render_template(
+        'carros.html',
+        carros=carros
     )
 
 # LOGOUT
