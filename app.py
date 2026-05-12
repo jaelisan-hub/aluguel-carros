@@ -1,9 +1,17 @@
 from flask import Flask, render_template, request, redirect, session
-import sqlite3
+import psycopg2
+import os
 
 app = Flask(__name__)
 
 app.secret_key = '123456'
+
+# CONEXAO POSTGRESQL
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+def conectar():
+
+    return psycopg2.connect(DATABASE_URL)
 
 # LIBERAR IFRAME
 @app.after_request
@@ -13,52 +21,53 @@ def after_request(response):
 
     return response
 
-# CRIAR BANCO
-conexao = sqlite3.connect('banco.db')
+# CRIAR TABELAS
+conexao = conectar()
 
 cursor = conexao.cursor()
 
-# TABELA USUARIOS
+# USUARIOS
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS usuarios (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    usuario TEXT,
-    senha TEXT
+    id SERIAL PRIMARY KEY,
+    usuario VARCHAR(200),
+    senha VARCHAR(200)
 )
 ''')
 
-# TABELA CLIENTES
+# CLIENTES
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS clientes (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nome TEXT,
-    telefone TEXT
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(200),
+    telefone VARCHAR(200)
 )
 ''')
 
-# TABELA CARROS
+# CARROS
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS carros (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    modelo TEXT,
-    marca TEXT,
-    ano TEXT
+    id SERIAL PRIMARY KEY,
+    modelo VARCHAR(200),
+    marca VARCHAR(200),
+    ano VARCHAR(200)
 )
 ''')
 
-# TABELA ALUGUEIS
+# ALUGUEIS
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS alugueis (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    cliente TEXT,
-    carro TEXT,
-    dias TEXT,
-    diaria TEXT,
-    total TEXT
+    id SERIAL PRIMARY KEY,
+    cliente VARCHAR(200),
+    carro VARCHAR(200),
+    dias VARCHAR(200),
+    diaria VARCHAR(200),
+    total VARCHAR(200)
 )
 ''')
 
 conexao.commit()
+
 conexao.close()
 
 # LOGIN
@@ -70,12 +79,12 @@ def login():
         usuario = request.form['usuario']
         senha = request.form['senha']
 
-        conexao = sqlite3.connect('banco.db')
+        conexao = conectar()
 
         cursor = conexao.cursor()
 
         cursor.execute(
-            'SELECT * FROM usuarios WHERE usuario = ? AND senha = ?',
+            'SELECT * FROM usuarios WHERE usuario = %s AND senha = %s',
             (usuario, senha)
         )
 
@@ -91,7 +100,7 @@ def login():
 
     return render_template('login.html')
 
-# CADASTRO
+# CADASTRO USUARIO
 @app.route('/cadastro', methods=['GET', 'POST'])
 def cadastro():
 
@@ -100,12 +109,12 @@ def cadastro():
         usuario = request.form['usuario']
         senha = request.form['senha']
 
-        conexao = sqlite3.connect('banco.db')
+        conexao = conectar()
 
         cursor = conexao.cursor()
 
         cursor.execute(
-            'INSERT INTO usuarios (usuario, senha) VALUES (?, ?)',
+            'INSERT INTO usuarios (usuario, senha) VALUES (%s, %s)',
             (usuario, senha)
         )
 
@@ -117,7 +126,7 @@ def cadastro():
 
     return render_template('cadastro.html')
 
-# HOME CLIENTES
+# CLIENTES
 @app.route('/', methods=['GET', 'POST'])
 def home():
 
@@ -125,27 +134,21 @@ def home():
 
         return redirect('/login')
 
+    conexao = conectar()
+
+    cursor = conexao.cursor()
+
     if request.method == 'POST':
 
         nome = request.form['nome']
         telefone = request.form['telefone']
 
-        conexao = sqlite3.connect('banco.db')
-
-        cursor = conexao.cursor()
-
         cursor.execute(
-            'INSERT INTO clientes (nome, telefone) VALUES (?, ?)',
+            'INSERT INTO clientes (nome, telefone) VALUES (%s, %s)',
             (nome, telefone)
         )
 
         conexao.commit()
-
-        conexao.close()
-
-    conexao = sqlite3.connect('banco.db')
-
-    cursor = conexao.cursor()
 
     cursor.execute('SELECT * FROM clientes')
 
@@ -166,25 +169,26 @@ def carros():
 
         return redirect('/login')
 
+    conexao = conectar()
+
+    cursor = conexao.cursor()
+
     if request.method == 'POST':
 
         modelo = request.form['modelo']
         marca = request.form['marca']
         ano = request.form['ano']
 
-        conexao = sqlite3.connect('banco.db')
-
-        cursor = conexao.cursor()
-
         cursor.execute(
-            'INSERT INTO carros (modelo, marca, ano) VALUES (?, ?, ?)',
+            '''
+            INSERT INTO carros
+            (modelo, marca, ano)
+            VALUES (%s, %s, %s)
+            ''',
             (modelo, marca, ano)
         )
 
-
-    conexao = sqlite3.connect('banco.db')
-
-    cursor = conexao.cursor()
+        conexao.commit()
 
     cursor.execute('SELECT * FROM carros')
 
@@ -197,14 +201,6 @@ def carros():
         carros=carros
     )
 
-# LOGOUT
-@app.route('/logout')
-def logout():
-
-    session.clear()
-
-    return redirect('/login')
-
 # ALUGUEIS
 @app.route('/alugueis', methods=['GET', 'POST'])
 def alugueis():
@@ -213,7 +209,7 @@ def alugueis():
 
         return redirect('/login')
 
-    conexao = sqlite3.connect('banco.db')
+    conexao = conectar()
 
     cursor = conexao.cursor()
 
@@ -230,7 +226,7 @@ def alugueis():
             '''
             INSERT INTO alugueis
             (cliente, carro, dias, diaria, total)
-            VALUES (?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s)
             ''',
             (cliente, carro, dias, diaria, total)
         )
@@ -257,9 +253,14 @@ def alugueis():
         clientes=clientes,
         carros=carros
     )
-conexao.commit()
 
-conexao.close()
+# LOGOUT
+@app.route('/logout')
+def logout():
+
+    session.clear()
+
+    return redirect('/login')
 
 if __name__ == '__main__':
     app.run(debug=True)
