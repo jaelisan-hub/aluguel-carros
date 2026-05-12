@@ -50,6 +50,18 @@ conexao.commit()
 
 conexao.close()
 
+# TABELA ALUGUEIS
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS alugueis (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    cliente TEXT,
+    carro TEXT,
+    dias TEXT,
+    diaria TEXT,
+    total TEXT
+)
+''')
+
 # LOGIN
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -196,6 +208,59 @@ def logout():
     session.clear()
 
     return redirect('/login')
+
+# ALUGUEIS
+@app.route('/alugueis', methods=['GET', 'POST'])
+def alugueis():
+
+    if 'usuario' not in session:
+
+        return redirect('/login')
+
+    conexao = sqlite3.connect('banco.db')
+
+    cursor = conexao.cursor()
+
+    if request.method == 'POST':
+
+        cliente = request.form['cliente']
+        carro = request.form['carro']
+        dias = int(request.form['dias'])
+        diaria = float(request.form['diaria'])
+
+        total = dias * diaria
+
+        cursor.execute(
+            '''
+            INSERT INTO alugueis
+            (cliente, carro, dias, diaria, total)
+            VALUES (?, ?, ?, ?, ?)
+            ''',
+            (cliente, carro, dias, diaria, total)
+        )
+
+        conexao.commit()
+
+    cursor.execute('SELECT * FROM alugueis')
+
+    lista_alugueis = cursor.fetchall()
+
+    cursor.execute('SELECT nome FROM clientes')
+
+    clientes = cursor.fetchall()
+
+    cursor.execute('SELECT modelo FROM carros')
+
+    carros = cursor.fetchall()
+
+    conexao.close()
+
+    return render_template(
+        'alugueis.html',
+        alugueis=lista_alugueis,
+        clientes=clientes,
+        carros=carros
+    )
 
 if __name__ == '__main__':
     app.run(debug=True)

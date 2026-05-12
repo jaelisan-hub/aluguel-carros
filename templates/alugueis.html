@@ -4,6 +4,7 @@
 <head>
 
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Aluguéis</title>
@@ -11,24 +12,31 @@
 <style>
 
 body{
-    margin:0;
-    padding:30px;
-    background:#eff6ff;
     font-family:Arial;
+    background:#f4f4f4;
+    margin:0;
+    padding:0;
+}
+
+.topo{
+    background:#2563eb;
+    color:white;
+    padding:20px;
+    text-align:center;
 }
 
 .container{
-    max-width:1000px;
+    width:90%;
+    max-width:800px;
     margin:auto;
-    background:white;
-    padding:30px;
-    border-radius:20px;
-    box-shadow:0px 5px 20px rgba(0,0,0,0.2);
+    margin-top:30px;
 }
 
-h1{
-    text-align:center;
-    color:#1e3a8a;
+.card{
+    background:white;
+    padding:30px;
+    border-radius:15px;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
 
 select,input{
@@ -47,35 +55,30 @@ button{
     background:#2563eb;
     color:white;
     border:none;
-    border-radius:12px;
+    border-radius:10px;
     font-size:18px;
-    cursor:pointer;
 }
 
-table{
-    width:100%;
-    border-collapse:collapse;
+.aluguel{
+    background:#eef2ff;
+    padding:15px;
+    margin-top:15px;
+    border-radius:10px;
+}
+
+.menu{
+    text-align:center;
     margin-top:30px;
 }
 
-th{
+.menu a{
+    text-decoration:none;
     background:#2563eb;
     color:white;
-    padding:12px;
-}
-
-td{
-    padding:12px;
-    border-bottom:1px solid #ddd;
-    text-align:center;
-}
-
-a{
-    background:#dc2626;
-    color:white;
-    padding:8px 12px;
-    border-radius:8px;
-    text-decoration:none;
+    padding:10px 20px;
+    border-radius:10px;
+    margin:5px;
+    display:inline-block;
 }
 
 </style>
@@ -84,9 +87,21 @@ a{
 
 <body>
 
+<div class="topo">
+
+<h1>
+📅 Sistema de Aluguéis
+</h1>
+
+</div>
+
 <div class="container">
 
-<h1>📋 Aluguéis</h1>
+<div class="card">
+
+<h2>
+Novo Aluguel
+</h2>
 
 <form method="POST">
 
@@ -128,44 +143,77 @@ name="dias"
 placeholder="Quantidade de dias"
 required>
 
+<input
+type="number"
+step="0.01"
+name="diaria"
+placeholder="Valor da diária"
+required>
+
 <button type="submit">
-Cadastrar Aluguel
+Registrar Aluguel
 </button>
 
 </form>
 
-<h2>🚗 Aluguéis Cadastrados</h2>
+</div>
 
-<table>
+<div class="card" style="margin-top:30px;">
 
-<tr>
-    <th>ID</th>
-    <th>Cliente</th>
-    <th>Carro</th>
-    <th>Dias</th>
-    <th>Ações</th>
-</tr>
+<h2>
+📋 Aluguéis Registrados
+</h2>
 
 {% for aluguel in alugueis %}
 
-<tr>
+<div class="aluguel">
 
-<td>{{ aluguel[0] }}</td>
-<td>{{ aluguel[1] }}</td>
-<td>{{ aluguel[2] }}</td>
-<td>{{ aluguel[3] }}</td>
+<p>
+<strong>Cliente:</strong>
+{{ aluguel[1] }}
+</p>
 
-<td>
-<a href="/excluir_aluguel/{{ aluguel[0] }}">
-❌ Excluir
-</a>
-</td>
+<p>
+<strong>Carro:</strong>
+{{ aluguel[2] }}
+</p>
 
-</tr>
+<p>
+<strong>Dias:</strong>
+{{ aluguel[3] }}
+</p>
+
+<p>
+<strong>Diária:</strong>
+R$ {{ aluguel[4] }}
+</p>
+
+<p>
+<strong>Total:</strong>
+R$ {{ aluguel[5] }}
+</p>
+
+</div>
 
 {% endfor %}
 
-</table>
+</div>
+
+<div class="menu">
+
+<a href="/">
+Clientes
+</a>
+
+<a href="/carros">
+Carros
+</a>
+
+<a href="/logout">
+Sair
+</a>
+
+</div>
 
 </div>
 
