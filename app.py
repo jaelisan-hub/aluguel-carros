@@ -9,6 +9,8 @@ app.secret_key = '123456'
 # CONEXAO POSTGRESQL
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
+print(DATABASE_URL)
+
 def conectar():
     return psycopg2.connect(DATABASE_URL)
 
