@@ -105,37 +105,19 @@ Novo Aluguel
 
 <form method="POST">
 
-<select name="cliente" required>
+<input
+type="text"
+name="cliente"
+placeholder="Digite o nome do cliente"
+required
+>
 
-<option value="">
-Selecione o cliente
-</option>
-
-{% for cliente in clientes %}
-
-<option value="{{ cliente[0] }}">
-{{ cliente[0] }}
-</option>
-
-{% endfor %}
-
-</select>
-
-<select name="carro" required>
-
-<option value="">
-Selecione o carro
-</option>
-
-{% for carro in carros %}
-
-<option value="{{ carro[0] }}">
-{{ carro[0] }}
-</option>
-
-{% endfor %}
-
-</select>
+<input
+type="text"
+name="carro"
+placeholder="Digite o carro"
+required
+>
 
 <input
 type="number"
