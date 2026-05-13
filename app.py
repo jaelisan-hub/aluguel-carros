@@ -151,6 +151,17 @@ def home():
 
         conexao.commit()
 
+    busca = request.args.get('busca')
+
+if busca:
+
+    cursor.execute(
+        "SELECT * FROM clientes WHERE nome ILIKE %s",
+        ('%' + busca + '%',)
+    )
+
+else:
+
     cursor.execute('SELECT * FROM clientes')
 
     clientes = cursor.fetchall()
