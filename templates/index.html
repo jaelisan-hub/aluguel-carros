@@ -1,194 +1,206 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html>
 
 <head>
 
-<meta charset="UTF-8">
+    <title>Clientes</title>
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
 
-<title>Locadora de Carros</title>
+        body{
+            font-family: Arial;
+            background: #f4f4f4;
+            padding: 20px;
+        }
 
-<style>
+        .caixa{
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
 
-body{
-    font-family:Arial;
-    background:#f4f4f4;
-    margin:0;
-    padding:0;
-}
+        h1{
+            color: #333;
+        }
 
-.topo{
-    background:#2563eb;
-    color:white;
-    padding:20px;
-    text-align:center;
-}
+        input{
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
 
-.container{
-    width:90%;
-    max-width:700px;
-    margin:auto;
-    margin-top:30px;
-}
+        button{
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
 
-.card{
-    background:white;
-    padding:30px;
-    border-radius:15px;
-    box-shadow:0 0 10px rgba(0,0,0,0.1);
-}
+        button:hover{
+            background: #0056b3;
+        }
 
-input{
-    width:100%;
-    padding:12px;
-    margin-top:10px;
-    margin-bottom:20px;
-    border-radius:10px;
-    border:1px solid #ccc;
-    box-sizing:border-box;
-}
+        table{
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
 
-button{
-    width:100%;
-    padding:15px;
-    background:#2563eb;
-    color:white;
-    border:none;
-    border-radius:10px;
-    font-size:18px;
-    cursor:pointer;
-}
+        th, td{
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
 
-button:hover{
-    background:#1d4ed8;
-}
+        th{
+            background: #222;
+            color: white;
+        }
 
-.cliente{
-    background:#eef2ff;
-    padding:15px;
-    margin-top:15px;
-    border-radius:10px;
-}
+        .menu{
+            margin-bottom: 20px;
+        }
 
-.menu{
-    margin-top:20px;
-    text-align:center;
-}
+        .menu a{
+            text-decoration: none;
+            background: #007bff;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
 
-.menu a{
-    text-decoration:none;
-    background:#2563eb;
-    color:white;
-    padding:10px 20px;
-    border-radius:10px;
-    margin:5px;
-    display:inline-block;
-}
+        .menu a:hover{
+            background: #0056b3;
+        }
 
-.menu a:hover{
-    background:#1d4ed8;
-}
+        .excluir{
+            color: red;
+            text-decoration: none;
+        }
 
-</style>
+    </style>
 
 </head>
 
 <body>
 
-<div class="topo">
+    <div class="menu">
 
-<h1>
-🚗 Sistema de Locadora
-</h1>
+        <a href="/">Clientes</a>
 
-<form method="GET">
+        <a href="/carros">
+            Carros
+        </a>
 
-    <input
-    type="text"
-    name="busca"
-    placeholder="Buscar cliente"
-    >
+        <a href="/alugueis">
+            Aluguéis
+        </a>
 
-    <button type="submit">
-        Buscar
-    </button>
+        <a href="/financeiro">
+            Financeiro
+        </a>
 
-</form>
+        <a href="/logout">
+            Sair
+        </a>
 
-<br>
+    </div>
 
-</div>
+    <div class="caixa">
 
-<div class="container">
+        <h1>Cadastro de Clientes</h1>
 
-<div class="card">
+        <!-- BUSCA -->
 
-<h2>
-Cadastrar Cliente
-</h2>
+        <form method="GET">
 
-<form method="POST">
+            <input
+            type="text"
+            name="busca"
+            placeholder="Buscar cliente"
+            >
 
-<input
-type="text"
-name="nome"
-placeholder="Nome do cliente"
-required>
+            <button type="submit">
+                Buscar
+            </button>
 
-<input
-type="text"
-name="telefone"
-placeholder="Telefone"
-required>
+        </form>
 
-<button type="submit">
-Cadastrar Cliente
-</button>
+        <br>
 
-</form>
+        <!-- CADASTRO -->
 
-</div>
+        <form method="POST">
 
-<div class="card" style="margin-top:30px;">
+            <input
+            type="text"
+            name="nome"
+            placeholder="Nome do cliente"
+            required
+            >
 
-<h2>
-📋 Clientes Cadastrados
-</h2>
+            <input
+            type="text"
+            name="telefone"
+            placeholder="Telefone"
+            required
+            >
 
-{% for cliente in clientes %}
+            <button type="submit">
+                Salvar Cliente
+            </button>
 
-<div class="cliente">
+        </form>
 
-<p>
-<strong>Nome:</strong>
-{{ cliente[1] }}
-</p>
+    </div>
 
-<p>
-<strong>Telefone:</strong>
-{{ cliente[2] }}
-</p>
+    <table>
 
-</div>
+        <tr>
 
-{% endfor %}
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Telefone</th>
+            <th>Ações</th>
 
-</div>
+        </tr>
 
-<div class="menu">
+        {% for cliente in clientes %}
 
-    <a href="/alugueis">
-Aluguéis
-</a>
+        <tr>
 
-<a href="/logout">
-Sair
-</a>
+            <td>{{ cliente[0] }}</td>
 
-</div>
+            <td>{{ cliente[1] }}</td>
 
-</div>
+            <td>{{ cliente[2] }}</td>
+
+            <td>
+
+                <a
+                class="excluir"
+                href="/excluir/{{ cliente[0] }}"
+                >
+
+                    Excluir
+
+                </a>
+
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </table>
 
 </body>
 
