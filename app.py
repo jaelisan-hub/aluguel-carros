@@ -320,5 +320,38 @@ def logout():
 
     return redirect('/login')
 
+# FINANCEIRO
+@app.route('/financeiro')
+def financeiro():
+
+    if 'usuario' not in session:
+
+        return redirect('/login')
+
+    conexao = conectar()
+
+    cursor = conexao.cursor()
+
+    cursor.execute('SELECT * FROM alugueis')
+
+    alugueis = cursor.fetchall()
+
+    cursor.execute('SELECT SUM(total::numeric) FROM alugueis')
+
+    resultado = cursor.fetchone()
+
+    total = resultado[0]
+
+    if total is None:
+        total = 0
+
+    conexao.close()
+
+    return render_template(
+        'financeiro.html',
+        alugueis=alugueis,
+        total=total
+    )
+
 if __name__ == '__main__':
     app.run(debug=True)

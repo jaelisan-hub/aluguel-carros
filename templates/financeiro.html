@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Painel Financeiro</title>
+
+    <style>
+
+        body{
+            font-family: Arial;
+            background: #f4f4f4;
+            padding: 30px;
+        }
+
+        .caixa{
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        h1{
+            color: #333;
+        }
+
+        table{
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th, td{
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+
+        th{
+            background: #222;
+            color: white;
+        }
+
+        .valor{
+            color: green;
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        a{
+            text-decoration: none;
+            color: white;
+            background: #007bff;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="caixa">
+
+        <h1>Painel Financeiro</h1>
+
+        <p>Total faturado:</p>
+
+        <div class="valor">
+            R$ {{ total }}
+        </div>
+
+        <br>
+
+        <a href="/">Clientes</a>
+        <a href="/carros">Carros</a>
+        <a href="/alugueis">Aluguéis</a>
+
+    </div>
+
+    <table>
+
+        <tr>
+
+            <th>ID</th>
+            <th>Cliente</th>
+            <th>Carro</th>
+            <th>Dias</th>
+            <th>Diária</th>
+            <th>Total</th>
+
+        </tr>
+
+        {% for aluguel in alugueis %}
+
+        <tr>
+
+            <td>{{ aluguel[0] }}</td>
+            <td>{{ aluguel[1] }}</td>
+            <td>{{ aluguel[2] }}</td>
+            <td>{{ aluguel[3] }}</td>
+            <td>R$ {{ aluguel[4] }}</td>
+            <td>R$ {{ aluguel[5] }}</td>
+
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+</body>
+
+</html>
