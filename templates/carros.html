@@ -4,7 +4,6 @@
 <head>
 
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Carros</title>
@@ -86,6 +85,27 @@ button:hover{
     display:inline-block;
 }
 
+.menu a:hover{
+    background:#1d4ed8;
+}
+
+/* 🔎 BUSCA */
+.busca{
+    margin-bottom:20px;
+}
+
+.busca input{
+    width:70%;
+    display:inline-block;
+}
+
+.busca button{
+    width:28%;
+    display:inline-block;
+    padding:12px;
+    font-size:16px;
+}
+
 </style>
 
 </head>
@@ -94,9 +114,7 @@ button:hover{
 
 <div class="topo">
 
-<h1>
-🚗 Cadastro de Carros
-</h1>
+<h1>🚗 Cadastro de Carros</h1>
 
 </div>
 
@@ -104,33 +122,17 @@ button:hover{
 
 <div class="card">
 
-<h2>
-Cadastrar Carro
-</h2>
+<h2>Cadastrar Carro</h2>
 
 <form method="POST">
 
-<input
-type="text"
-name="modelo"
-placeholder="Modelo"
-required>
+<input type="text" name="modelo" placeholder="Modelo" required>
 
-<input
-type="text"
-name="marca"
-placeholder="Marca"
-required>
+<input type="text" name="marca" placeholder="Marca" required>
 
-<input
-type="text"
-name="ano"
-placeholder="Ano"
-required>
+<input type="text" name="ano" placeholder="Ano" required>
 
-<button type="submit">
-Cadastrar Carro
-</button>
+<button type="submit">Cadastrar Carro</button>
 
 </form>
 
@@ -138,28 +140,28 @@ Cadastrar Carro
 
 <div class="card" style="margin-top:30px;">
 
-<h2>
-📋 Carros Cadastrados
-</h2>
+<h2>📋 Carros Cadastrados</h2>
+
+<!-- 🔎 BUSCA -->
+<form method="GET" class="busca">
+    <input type="text" name="busca" placeholder="Buscar carro...">
+    <button type="submit">Buscar</button>
+</form>
 
 {% for carro in carros %}
 
 <div class="carro">
 
-<p>
-<strong>Modelo:</strong>
-{{ carro[1] }}
-</p>
+    <p><strong>Modelo:</strong> {{ carro[1] }}</p>
+    <p><strong>Marca:</strong> {{ carro[2] }}</p>
+    <p><strong>Ano:</strong> {{ carro[3] }}</p>
 
-<p>
-<strong>Marca:</strong>
-{{ carro[2] }}
-</p>
-
-<p>
-<strong>Ano:</strong>
-{{ carro[3] }}
-</p>
+    <!-- 🗑️ EXCLUIR CARRO -->
+    <a href="/excluir_carro/{{ carro[0] }}"
+       style="background:red;color:white;padding:8px 12px;
+       border-radius:8px;text-decoration:none;display:inline-block;margin-top:10px;">
+       🗑️ Excluir
+    </a>
 
 </div>
 
@@ -169,17 +171,9 @@ Cadastrar Carro
 
 <div class="menu">
 
-<a href="/">
-Clientes
-</a>
-
-<a href="/alugueis">
-Aluguéis
-</a>
-
-<a href="/logout">
-Sair
-</a>
+<a href="/">Clientes</a>
+<a href="/alugueis">Aluguéis</a>
+<a href="/logout">Sair</a>
 
 </div>
 

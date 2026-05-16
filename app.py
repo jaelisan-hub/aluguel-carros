@@ -202,22 +202,28 @@ def carros():
         ano = request.form['ano']
 
         cursor.execute(
-            '''
-            INSERT INTO carros (modelo, marca, ano)
-            VALUES (%s, %s, %s)
-            ''',
+            'INSERT INTO carros (modelo, marca, ano) VALUES (%s, %s, %s)',
             (modelo, marca, ano)
         )
 
         conexao.commit()
 
-    cursor.execute('SELECT * FROM carros')
+    # 🔎 BUSCA
+    busca = request.args.get('busca')
+
+    if busca:
+        cursor.execute(
+            "SELECT * FROM carros WHERE modelo ILIKE %s",
+            ('%' + busca + '%',)
+        )
+    else:
+        cursor.execute("SELECT * FROM carros")
+
     carros = cursor.fetchall()
 
     conexao.close()
 
     return render_template('carros.html', carros=carros)
-
 
 # =========================
 # EXCLUIR CARRO
