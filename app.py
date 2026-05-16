@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, redirect, session
 import psycopg2
 
 app = Flask(__name__)
-
 app.secret_key = '123456'
 
 DATABASE_URL = 'postgresql://locadora_v5d7_user:ZIa4dfq1MOZvXfNXCgW0UcmNZH0sFbMk@dpg-d815iijrjlhs73assr10-a.virginia-postgres.render.com/locadora_v5d7'
@@ -27,50 +26,54 @@ def after_request(response):
 # =========================
 # CRIAR TABELAS
 # =========================
-conexao = conectar()
-cursor = conexao.cursor()
+def criar_tabelas():
+    conexao = conectar()
+    cursor = conexao.cursor()
 
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS usuarios (
-    id SERIAL PRIMARY KEY,
-    usuario VARCHAR(200),
-    senha VARCHAR(200)
-)
-''')
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS usuarios (
+        id SERIAL PRIMARY KEY,
+        usuario VARCHAR(200),
+        senha VARCHAR(200)
+    )
+    ''')
 
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS clientes (
-    id SERIAL PRIMARY KEY,
-    nome VARCHAR(200),
-    telefone VARCHAR(200),
-    usuario VARCHAR(200)
-)
-''')
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS clientes (
+        id SERIAL PRIMARY KEY,
+        nome VARCHAR(200),
+        telefone VARCHAR(200),
+        usuario VARCHAR(200)
+    )
+    ''')
 
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS carros (
-    id SERIAL PRIMARY KEY,
-    modelo VARCHAR(200),
-    marca VARCHAR(200),
-    ano VARCHAR(200),
-    usuario VARCHAR(200)
-)
-''')
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS carros (
+        id SERIAL PRIMARY KEY,
+        modelo VARCHAR(200),
+        marca VARCHAR(200),
+        ano VARCHAR(200),
+        usuario VARCHAR(200)
+    )
+    ''')
 
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS alugueis (
-    id SERIAL PRIMARY KEY,
-    cliente VARCHAR(200),
-    carro VARCHAR(200),
-    dias VARCHAR(200),
-    diaria VARCHAR(200),
-    total VARCHAR(200),
-    usuario VARCHAR(200)
-)
-''')
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS alugueis (
+        id SERIAL PRIMARY KEY,
+        cliente VARCHAR(200),
+        carro VARCHAR(200),
+        dias VARCHAR(200),
+        diaria VARCHAR(200),
+        total VARCHAR(200),
+        usuario VARCHAR(200)
+    )
+    ''')
 
-conexao.commit()
-conexao.close()
+    conexao.commit()
+    conexao.close()
+
+
+criar_tabelas()
 
 
 # =========================
@@ -95,12 +98,12 @@ def login():
         usuario_encontrado = cursor.fetchone()
 
         if usuario_encontrado:
-         session['usuario'] = usuario
-        return redirect('/')
-    else:
-     return "Login inválido"
+            session['usuario'] = usuario
+            return redirect('/')
+        else:
+            return "Login inválido"
 
-    
+    return render_template('login.html')
 
 
 # =========================
@@ -150,12 +153,9 @@ def home():
         telefone = request.form['telefone']
 
         cursor.execute(
-    'INSERT INTO clientes (nome, telefone, usuario) VALUES (%s, %s, %s)',
-    (nome, telefone, usuario)
-)
-   
-        
-        
+            'INSERT INTO clientes (nome, telefone, usuario) VALUES (%s, %s, %s)',
+            (nome, telefone, usuario)
+        )
 
         conexao.commit()
 
@@ -173,7 +173,6 @@ def home():
         )
 
     clientes = cursor.fetchall()
-
     conexao.close()
 
     return render_template('index.html', clientes=clientes)
@@ -220,10 +219,9 @@ def carros():
         ano = request.form['ano']
 
         cursor.execute(
-    'INSERT INTO carros (modelo, marca, ano, usuario) VALUES (%s, %s, %s, %s)',
-    (modelo, marca, ano, usuario)
-)
-        
+            'INSERT INTO carros (modelo, marca, ano, usuario) VALUES (%s, %s, %s, %s)',
+            (modelo, marca, ano, usuario)
+        )
 
         conexao.commit()
 
@@ -241,7 +239,6 @@ def carros():
         )
 
     carros = cursor.fetchall()
-
     conexao.close()
 
     return render_template('carros.html', carros=carros)
@@ -291,13 +288,12 @@ def alugueis():
         total = dias * diaria
 
         cursor.execute(
-    '''
-    INSERT INTO alugueis (cliente, carro, dias, diaria, total, usuario)
-    VALUES (%s, %s, %s, %s, %s, %s)
-    ''',
-    (cliente, carro, dias, diaria, total, usuario)
-)
-        
+            '''
+            INSERT INTO alugueis (cliente, carro, dias, diaria, total, usuario)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            ''',
+            (cliente, carro, dias, diaria, total, usuario)
+        )
 
         conexao.commit()
 
@@ -315,7 +311,6 @@ def alugueis():
         )
 
     alugueis = cursor.fetchall()
-
     conexao.close()
 
     return render_template('alugueis.html', alugueis=alugueis)
@@ -364,18 +359,10 @@ def financeiro():
 
     usuario = session['usuario']
 
-    busca = request.args.get('busca')
-
-    if busca:
-        cursor.execute(
-            "SELECT * FROM alugueis WHERE usuario = %s AND cliente ILIKE %s",
-            (usuario, '%' + busca + '%')
-        )
-    else:
-        cursor.execute(
-            "SELECT * FROM alugueis WHERE usuario = %s",
-            (usuario,)
-        )
+    cursor.execute(
+        "SELECT * FROM alugueis WHERE usuario = %s",
+        (usuario,)
+    )
 
     alugueis = cursor.fetchall()
 
@@ -389,11 +376,7 @@ def financeiro():
 
     conexao.close()
 
-    return render_template(
-        'financeiro.html',
-        alugueis=alugueis,
-        total=total
-    )
+    return render_template('financeiro.html', alugueis=alugueis, total=total)
 
 
 # =========================
@@ -405,11 +388,7 @@ def pagamento():
     valor = "A combinar"
     link_pagamento = "https://link-de-pagamento.com"
 
-    return render_template(
-        "pagamento.html",
-        valor=valor,
-        link_pagamento=link_pagamento
-    )
+    return render_template("pagamento.html", valor=valor, link_pagamento=link_pagamento)
 
 
 # =========================
