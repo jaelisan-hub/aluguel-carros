@@ -89,6 +89,23 @@ button:hover{
     background:#1d4ed8;
 }
 
+/* 🟢 ESTILO DA BUSCA */
+.busca{
+    margin-bottom:20px;
+}
+
+.busca input{
+    width:70%;
+    display:inline-block;
+}
+
+.busca button{
+    width:28%;
+    display:inline-block;
+    padding:12px;
+    font-size:16px;
+}
+
 </style>
 
 </head>
@@ -120,6 +137,13 @@ button:hover{
     <div class="card" style="margin-top:30px;">
 
         <h2>📋 Clientes Cadastrados</h2>
+        
+
+        <!-- 🔎 BUSCA ADICIONADA -->
+        <form method="GET" class="busca">
+            <input type="text" name="busca" placeholder="Buscar cliente...">
+            <button type="submit">Buscar</button>
+        </form>
 
         {% for cliente in clientes %}
 
@@ -135,19 +159,13 @@ button:hover{
 
     </div>
 
-    <!-- MENU DENTRO DO CONTAINER -->
     <div class="menu">
 
         <a href="/">Clientes</a>
-
         <a href="/carros">Carros</a>
-
         <a href="/alugueis">Aluguéis</a>
-
         <a href="/financeiro">Financeiro</a>
-
         <a href="/pagamento">💰 Pagar Projeto</a>
-
         <a href="/logout">Sair</a>
 
     </div>

@@ -148,7 +148,17 @@ def home():
 
         conexao.commit()
 
-    cursor.execute('SELECT * FROM clientes')
+    # 🔎 BUSCA CORRIGIDA (DENTRO DA FUNÇÃO)
+    busca = request.args.get('busca')
+
+    if busca:
+        cursor.execute(
+            "SELECT * FROM clientes WHERE nome ILIKE %s",
+            ('%' + busca + '%',)
+        )
+    else:
+        cursor.execute('SELECT * FROM clientes')
+
     clientes = cursor.fetchall()
 
     conexao.close()
