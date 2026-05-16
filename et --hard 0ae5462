@@ -1,0 +1,44 @@
+[33m18067f8[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m Add route for 'assinar' to render assinar.html
+[33m005ebec[m Change redirect logic based on usuario_encontrado
+[33m80743cf[m Remove usuario_id from clientes and carros tables
+[33m41f6099[m Primeira versão da locadora SaaS
+[33m0ae5462[m corrigir indentacao
+[33mf3eae99[m adicionar reportlab
+[33m42b66b4[m Update app.py
+[33m2f58ca7[m Refactor SQL queries and add search functionality
+[33mbd9fe89[m Add search functionality for clients in index.html
+[33m1bc0789[m Refactor home route for better readability
+[33mcc8b849[m Update index.html
+[33m0101e1b[m busca clientes
+[33m3eb4e46[m Update login.html
+[33mb4e289f[m Refactor index.html for car rental system
+[33m1751e20[m Update financeiro.html
+[33m10f60a9[m Fix HTML structure by adding missing closing tags
+[33mc1bac10[m Update cadastro.html
+[33m3bd8622[m Fix missing closing tags in alugueis.html
+[33ma84a341[m Implement PostgreSQL connection and user management
+[33mfed0b03[m consulta clientes
+[33m70554b0[m consulta clientes
+[33m4e6efa2[m consulta clientes
+[33m16629de[m voltar sistema funcionando
+[33m6e8671f[m[33m ([m[1;31morigin/4e9f918[m[33m)[m corrigir sistema
+[33m51894fd[m corrigir app
+[33m4aa82fb[m corrigir busca
+[33m8b601de[m busca clientes
+[33m4e9f918[m painel financeiro
+[33m2e525a8[m alterado inputs aluguel
+[33m1bf3c33[m conexao direta postgres
+[33mf8eb469[m teste database url
+[33mf12f490[m postgresql completo
+[33m5d03e05[m migrando postgresql
+[33m59b2b51[m migrando postgresql
+[33ma81f52c[m corrigindo sqlite
+[33m8efe4c6[m corrigindo banco alugueis
+[33mfe3fa0f[m adicionando alugueis
+[33m8e3f54a[m adicionando carros
+[33m000da14[m corrigindo clientes
+[33m26c5344[m corrigindo sistema
+[33m7dc16a1[m corrigindo postgres
+[33m9e0de52[m adicionando cadastro
+[33m8c5ab69[m sistema completo
+[33m8860493[m primeiro sistema

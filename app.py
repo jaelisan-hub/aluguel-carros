@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, redirect, session
 import psycopg2
-import os
 
 app = Flask(__name__)
 
@@ -10,24 +9,26 @@ app.secret_key = '123456'
 DATABASE_URL = 'postgresql://locadora_v5d7_user:ZIa4dfq1MOZvXfNXCgW0UcmNZH0sFbMk@dpg-d815iijrjlhs73assr10-a.virginia-postgres.render.com/locadora_v5d7'
 
 
-
+# =========================
+# CONEXÃO BANCO
+# =========================
 def conectar():
     return psycopg2.connect(DATABASE_URL)
+
 
 # LIBERAR IFRAME BLOGSPOT
 @app.after_request
 def after_request(response):
-
     response.headers['X-Frame-Options'] = 'ALLOWALL'
-
     return response
 
-# CRIAR TABELAS
-conexao = conectar()
 
+# =========================
+# CRIAR TABELAS
+# =========================
+conexao = conectar()
 cursor = conexao.cursor()
 
-# TABELA USUARIOS
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS usuarios (
     id SERIAL PRIMARY KEY,
@@ -36,7 +37,6 @@ CREATE TABLE IF NOT EXISTS usuarios (
 )
 ''')
 
-# TABELA CLIENTES
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS clientes (
     id SERIAL PRIMARY KEY,
@@ -45,7 +45,6 @@ CREATE TABLE IF NOT EXISTS clientes (
 )
 ''')
 
-# TABELA CARROS
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS carros (
     id SERIAL PRIMARY KEY,
@@ -55,7 +54,6 @@ CREATE TABLE IF NOT EXISTS carros (
 )
 ''')
 
-# TABELA ALUGUEIS
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS alugueis (
     id SERIAL PRIMARY KEY,
@@ -68,10 +66,12 @@ CREATE TABLE IF NOT EXISTS alugueis (
 ''')
 
 conexao.commit()
-
 conexao.close()
 
+
+# =========================
 # LOGIN
+# =========================
 @app.route('/login', methods=['GET', 'POST'])
 def login():
 
@@ -80,28 +80,26 @@ def login():
         usuario = request.form['usuario']
         senha = request.form['senha']
 
-        conexao = conectar()
-
+        conexao = psycopg2.connect(DATABASE_URL)
         cursor = conexao.cursor()
 
         cursor.execute(
-            'SELECT * FROM usuarios WHERE usuario = %s AND senha = %s',
+            "SELECT * FROM usuarios WHERE usuario=%s AND senha=%s",
             (usuario, senha)
         )
 
         usuario_encontrado = cursor.fetchone()
 
-        conexao.close()
-
         if usuario_encontrado:
-
             session['usuario'] = usuario
-
             return redirect('/')
 
     return render_template('login.html')
 
+
+# =========================
 # CADASTRO
+# =========================
 @app.route('/cadastro', methods=['GET', 'POST'])
 def cadastro():
 
@@ -111,7 +109,6 @@ def cadastro():
         senha = request.form['senha']
 
         conexao = conectar()
-
         cursor = conexao.cursor()
 
         cursor.execute(
@@ -120,23 +117,23 @@ def cadastro():
         )
 
         conexao.commit()
-
         conexao.close()
 
         return redirect('/login')
 
     return render_template('cadastro.html')
 
+
+# =========================
 # CLIENTES
+# =========================
 @app.route('/', methods=['GET', 'POST'])
 def home():
 
     if 'usuario' not in session:
-
         return redirect('/login')
 
     conexao = conectar()
-
     cursor = conexao.cursor()
 
     if request.method == 'POST':
@@ -152,45 +149,40 @@ def home():
         conexao.commit()
 
     cursor.execute('SELECT * FROM clientes')
-
     clientes = cursor.fetchall()
 
     conexao.close()
 
-    return render_template(
-        'index.html',
-        clientes=clientes
-    )
+    return render_template('index.html', clientes=clientes)
 
+
+# =========================
 # EXCLUIR CLIENTE
+# =========================
 @app.route('/excluir/<int:id>')
 def excluir(id):
 
     conexao = conectar()
-
     cursor = conexao.cursor()
 
-    cursor.execute(
-        'DELETE FROM clientes WHERE id = %s',
-        (id,)
-    )
+    cursor.execute('DELETE FROM clientes WHERE id = %s', (id,))
 
     conexao.commit()
-
     conexao.close()
 
     return redirect('/')
 
+
+# =========================
 # CARROS
+# =========================
 @app.route('/carros', methods=['GET', 'POST'])
 def carros():
 
     if 'usuario' not in session:
-
         return redirect('/login')
 
     conexao = conectar()
-
     cursor = conexao.cursor()
 
     if request.method == 'POST':
@@ -201,8 +193,7 @@ def carros():
 
         cursor.execute(
             '''
-            INSERT INTO carros
-            (modelo, marca, ano)
+            INSERT INTO carros (modelo, marca, ano)
             VALUES (%s, %s, %s)
             ''',
             (modelo, marca, ano)
@@ -211,45 +202,40 @@ def carros():
         conexao.commit()
 
     cursor.execute('SELECT * FROM carros')
-
     carros = cursor.fetchall()
 
     conexao.close()
 
-    return render_template(
-        'carros.html',
-        carros=carros
-    )
+    return render_template('carros.html', carros=carros)
 
+
+# =========================
 # EXCLUIR CARRO
+# =========================
 @app.route('/excluir_carro/<int:id>')
 def excluir_carro(id):
 
     conexao = conectar()
-
     cursor = conexao.cursor()
 
-    cursor.execute(
-        'DELETE FROM carros WHERE id = %s',
-        (id,)
-    )
+    cursor.execute('DELETE FROM carros WHERE id = %s', (id,))
 
     conexao.commit()
-
     conexao.close()
 
     return redirect('/carros')
 
+
+# =========================
 # ALUGUEIS
+# =========================
 @app.route('/alugueis', methods=['GET', 'POST'])
 def alugueis():
 
     if 'usuario' not in session:
-
         return redirect('/login')
 
     conexao = conectar()
-
     cursor = conexao.cursor()
 
     if request.method == 'POST':
@@ -263,8 +249,7 @@ def alugueis():
 
         cursor.execute(
             '''
-            INSERT INTO alugueis
-            (cliente, carro, dias, diaria, total)
+            INSERT INTO alugueis (cliente, carro, dias, diaria, total)
             VALUES (%s, %s, %s, %s, %s)
             ''',
             (cliente, carro, dias, diaria, total)
@@ -273,15 +258,12 @@ def alugueis():
         conexao.commit()
 
     cursor.execute('SELECT * FROM alugueis')
-
     lista_alugueis = cursor.fetchall()
 
     cursor.execute('SELECT nome FROM clientes')
-
     clientes = cursor.fetchall()
 
     cursor.execute('SELECT modelo FROM carros')
-
     carros = cursor.fetchall()
 
     conexao.close()
@@ -293,55 +275,52 @@ def alugueis():
         carros=carros
     )
 
+
+# =========================
 # EXCLUIR ALUGUEL
+# =========================
 @app.route('/excluir_aluguel/<int:id>')
 def excluir_aluguel(id):
 
     conexao = conectar()
-
     cursor = conexao.cursor()
 
-    cursor.execute(
-        'DELETE FROM alugueis WHERE id = %s',
-        (id,)
-    )
+    cursor.execute('DELETE FROM alugueis WHERE id = %s', (id,))
 
     conexao.commit()
-
     conexao.close()
 
     return redirect('/alugueis')
 
+
+# =========================
 # LOGOUT
+# =========================
 @app.route('/logout')
 def logout():
-
     session.clear()
-
     return redirect('/login')
 
+
+# =========================
 # FINANCEIRO
+# =========================
 @app.route('/financeiro')
 def financeiro():
 
     if 'usuario' not in session:
-
         return redirect('/login')
 
     conexao = conectar()
-
     cursor = conexao.cursor()
 
     cursor.execute('SELECT * FROM alugueis')
-
     alugueis = cursor.fetchall()
 
     cursor.execute('SELECT SUM(total::numeric) FROM alugueis')
-
     resultado = cursor.fetchone()
 
     total = resultado[0]
-
     if total is None:
         total = 0
 
@@ -353,5 +332,26 @@ def financeiro():
         total=total
     )
 
+
+# =========================
+# 🟢 PAGAMENTO (NOVO - CORRIGIDO)
+# =========================
+@app.route("/pagamento")
+def pagamento():
+
+    valor = "A combinar"
+
+    link_pagamento = "https://link-de-pagamento.com"
+
+    return render_template(
+        "pagamento.html",
+        valor=valor,
+        link_pagamento=link_pagamento
+    )
+
+
+# =========================
+# START APP
+# =========================
 if __name__ == '__main__':
     app.run(debug=True)

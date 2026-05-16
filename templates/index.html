@@ -4,7 +4,6 @@
 <head>
 
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Locadora de Carros</title>
@@ -72,7 +71,7 @@ button:hover{
 }
 
 .menu{
-    margin-top:20px;
+    margin-top:30px;
     text-align:center;
 }
 
@@ -97,80 +96,61 @@ button:hover{
 <body>
 
 <div class="topo">
-
-<h1>
-🚗 Sistema de Locadora
-</h1>
-
+    <h1>🚗 Sistema de Locadora</h1>
 </div>
 
 <div class="container">
 
-<div class="card">
+    <div class="card">
 
-<h2>
-Cadastrar Cliente
-</h2>
+        <h2>Cadastrar Cliente</h2>
 
-<form method="POST">
+        <form method="POST">
 
-<input
-type="text"
-name="nome"
-placeholder="Nome do cliente"
-required>
+            <input type="text" name="nome" placeholder="Nome do cliente" required>
 
-<input
-type="text"
-name="telefone"
-placeholder="Telefone"
-required>
+            <input type="text" name="telefone" placeholder="Telefone" required>
 
-<button type="submit">
-Cadastrar Cliente
-</button>
+            <button type="submit">Cadastrar Cliente</button>
 
-</form>
+        </form>
 
-</div>
+    </div>
 
-<div class="card" style="margin-top:30px;">
+    <div class="card" style="margin-top:30px;">
 
-<h2>
-📋 Clientes Cadastrados
-</h2>
+        <h2>📋 Clientes Cadastrados</h2>
 
-{% for cliente in clientes %}
+        {% for cliente in clientes %}
 
-<div class="cliente">
+        <div class="cliente">
 
-<p>
-<strong>Nome:</strong>
-{{ cliente[1] }}
-</p>
+            <p><strong>Nome:</strong> {{ cliente[1] }}</p>
 
-<p>
-<strong>Telefone:</strong>
-{{ cliente[2] }}
-</p>
+            <p><strong>Telefone:</strong> {{ cliente[2] }}</p>
 
-</div>
+        </div>
 
-{% endfor %}
+        {% endfor %}
 
-</div>
+    </div>
 
-<div class="menu">
+    <!-- MENU DENTRO DO CONTAINER -->
+    <div class="menu">
 
-    <a href="/alugueis">
-Aluguéis
-</a>
+        <a href="/">Clientes</a>
 
-<a href="/logout">
-Sair
-</a>
+        <a href="/carros">Carros</a>
 
-</div>
+        <a href="/alugueis">Aluguéis</a>
+
+        <a href="/financeiro">Financeiro</a>
+
+        <a href="/pagamento">💰 Pagar Projeto</a>
+
+        <a href="/logout">Sair</a>
+
+    </div>
 
 </div>
 
