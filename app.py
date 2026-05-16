@@ -5,7 +5,6 @@ app = Flask(__name__)
 
 app.secret_key = '123456'
 
-# CONEXAO POSTGRESQL
 DATABASE_URL = 'postgresql://locadora_v5d7_user:ZIa4dfq1MOZvXfNXCgW0UcmNZH0sFbMk@dpg-d815iijrjlhs73assr10-a.virginia-postgres.render.com/locadora_v5d7'
 
 
@@ -16,7 +15,9 @@ def conectar():
     return psycopg2.connect(DATABASE_URL)
 
 
-# LIBERAR IFRAME BLOGSPOT
+# =========================
+# AFTER REQUEST
+# =========================
 @app.after_request
 def after_request(response):
     response.headers['X-Frame-Options'] = 'ALLOWALL'
@@ -41,7 +42,8 @@ cursor.execute('''
 CREATE TABLE IF NOT EXISTS clientes (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(200),
-    telefone VARCHAR(200)
+    telefone VARCHAR(200),
+    usuario VARCHAR(200)
 )
 ''')
 
@@ -50,7 +52,8 @@ CREATE TABLE IF NOT EXISTS carros (
     id SERIAL PRIMARY KEY,
     modelo VARCHAR(200),
     marca VARCHAR(200),
-    ano VARCHAR(200)
+    ano VARCHAR(200),
+    usuario VARCHAR(200)
 )
 ''')
 
@@ -61,7 +64,8 @@ CREATE TABLE IF NOT EXISTS alugueis (
     carro VARCHAR(200),
     dias VARCHAR(200),
     diaria VARCHAR(200),
-    total VARCHAR(200)
+    total VARCHAR(200),
+    usuario VARCHAR(200)
 )
 ''')
 
@@ -80,7 +84,7 @@ def login():
         usuario = request.form['usuario']
         senha = request.form['senha']
 
-        conexao = psycopg2.connect(DATABASE_URL)
+        conexao = conectar()
         cursor = conexao.cursor()
 
         cursor.execute(
@@ -136,28 +140,32 @@ def home():
     conexao = conectar()
     cursor = conexao.cursor()
 
+    usuario = session['usuario']
+
     if request.method == 'POST':
 
         nome = request.form['nome']
         telefone = request.form['telefone']
 
         cursor.execute(
-            'INSERT INTO clientes (nome, telefone) VALUES (%s, %s)',
-            (nome, telefone)
+            'INSERT INTO clientes (nome, telefone, usuario) VALUES (%s, %s, %s)',
+            (nome, telefone, usuario)
         )
 
         conexao.commit()
 
-    # 🔎 BUSCA CORRIGIDA (DENTRO DA FUNÇÃO)
     busca = request.args.get('busca')
 
     if busca:
         cursor.execute(
-            "SELECT * FROM clientes WHERE nome ILIKE %s",
-            ('%' + busca + '%',)
+            "SELECT * FROM clientes WHERE usuario=%s AND nome ILIKE %s",
+            (usuario, '%' + busca + '%')
         )
     else:
-        cursor.execute('SELECT * FROM clientes')
+        cursor.execute(
+            "SELECT * FROM clientes WHERE usuario=%s",
+            (usuario,)
+        )
 
     clientes = cursor.fetchall()
 
@@ -171,6 +179,9 @@ def home():
 # =========================
 @app.route('/excluir/<int:id>')
 def excluir(id):
+
+    if 'usuario' not in session:
+        return redirect('/login')
 
     conexao = conectar()
     cursor = conexao.cursor()
@@ -195,6 +206,8 @@ def carros():
     conexao = conectar()
     cursor = conexao.cursor()
 
+    usuario = session['usuario']
+
     if request.method == 'POST':
 
         modelo = request.form['modelo']
@@ -202,22 +215,24 @@ def carros():
         ano = request.form['ano']
 
         cursor.execute(
-            'INSERT INTO carros (modelo, marca, ano) VALUES (%s, %s, %s)',
-            (modelo, marca, ano)
+            'INSERT INTO carros (modelo, marca, ano, usuario) VALUES (%s, %s, %s, %s)',
+            (modelo, marca, ano, usuario)
         )
 
         conexao.commit()
 
-    # 🔎 BUSCA
     busca = request.args.get('busca')
 
     if busca:
         cursor.execute(
-            "SELECT * FROM carros WHERE modelo ILIKE %s",
-            ('%' + busca + '%',)
+            "SELECT * FROM carros WHERE usuario=%s AND modelo ILIKE %s",
+            (usuario, '%' + busca + '%')
         )
     else:
-        cursor.execute("SELECT * FROM carros")
+        cursor.execute(
+            "SELECT * FROM carros WHERE usuario=%s",
+            (usuario,)
+        )
 
     carros = cursor.fetchall()
 
@@ -225,11 +240,15 @@ def carros():
 
     return render_template('carros.html', carros=carros)
 
+
 # =========================
 # EXCLUIR CARRO
 # =========================
 @app.route('/excluir_carro/<int:id>')
 def excluir_carro(id):
+
+    if 'usuario' not in session:
+        return redirect('/login')
 
     conexao = conectar()
     cursor = conexao.cursor()
@@ -254,6 +273,8 @@ def alugueis():
     conexao = conectar()
     cursor = conexao.cursor()
 
+    usuario = session['usuario']
+
     if request.method == 'POST':
 
         cliente = request.form['cliente']
@@ -265,24 +286,26 @@ def alugueis():
 
         cursor.execute(
             '''
-            INSERT INTO alugueis (cliente, carro, dias, diaria, total)
-            VALUES (%s, %s, %s, %s, %s)
+            INSERT INTO alugueis (cliente, carro, dias, diaria, total, usuario)
+            VALUES (%s, %s, %s, %s, %s, %s)
             ''',
-            (cliente, carro, dias, diaria, total)
+            (cliente, carro, dias, diaria, total, usuario)
         )
 
         conexao.commit()
 
-    # 🔎 BUSCA CORRIGIDA
     busca = request.args.get('busca')
 
     if busca:
         cursor.execute(
-            "SELECT * FROM alugueis WHERE cliente ILIKE %s",
-            ('%' + busca + '%',)
+            "SELECT * FROM alugueis WHERE usuario=%s AND cliente ILIKE %s",
+            (usuario, '%' + busca + '%')
         )
     else:
-        cursor.execute("SELECT * FROM alugueis")
+        cursor.execute(
+            "SELECT * FROM alugueis WHERE usuario=%s",
+            (usuario,)
+        )
 
     alugueis = cursor.fetchall()
 
@@ -296,6 +319,9 @@ def alugueis():
 # =========================
 @app.route('/excluir_aluguel/<int:id>')
 def excluir_aluguel(id):
+
+    if 'usuario' not in session:
+        return redirect('/login')
 
     conexao = conectar()
     cursor = conexao.cursor()
@@ -329,21 +355,29 @@ def financeiro():
     conexao = conectar()
     cursor = conexao.cursor()
 
+    usuario = session['usuario']
+
     busca = request.args.get('busca')
 
     if busca:
         cursor.execute(
-            "SELECT * FROM alugueis WHERE cliente ILIKE %s",
-            ('%' + busca + '%',)
+            "SELECT * FROM alugueis WHERE usuario = %s AND cliente ILIKE %s",
+            (usuario, '%' + busca + '%')
         )
     else:
-        cursor.execute("SELECT * FROM alugueis")
+        cursor.execute(
+            "SELECT * FROM alugueis WHERE usuario = %s",
+            (usuario,)
+        )
 
     alugueis = cursor.fetchall()
 
-    cursor.execute('SELECT SUM(total::numeric) FROM alugueis')
-    resultado = cursor.fetchone()
+    cursor.execute(
+        "SELECT SUM(total::numeric) FROM alugueis WHERE usuario = %s",
+        (usuario,)
+    )
 
+    resultado = cursor.fetchone()
     total = resultado[0] if resultado[0] else 0
 
     conexao.close()
@@ -354,14 +388,14 @@ def financeiro():
         total=total
     )
 
+
 # =========================
-# 🟢 PAGAMENTO (NOVO - CORRIGIDO)
+# PAGAMENTO
 # =========================
 @app.route("/pagamento")
 def pagamento():
 
     valor = "A combinar"
-
     link_pagamento = "https://link-de-pagamento.com"
 
     return render_template(
