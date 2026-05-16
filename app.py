@@ -329,15 +329,22 @@ def financeiro():
     conexao = conectar()
     cursor = conexao.cursor()
 
-    cursor.execute('SELECT * FROM alugueis')
+    busca = request.args.get('busca')
+
+    if busca:
+        cursor.execute(
+            "SELECT * FROM alugueis WHERE cliente ILIKE %s",
+            ('%' + busca + '%',)
+        )
+    else:
+        cursor.execute("SELECT * FROM alugueis")
+
     alugueis = cursor.fetchall()
 
     cursor.execute('SELECT SUM(total::numeric) FROM alugueis')
     resultado = cursor.fetchone()
 
-    total = resultado[0]
-    if total is None:
-        total = 0
+    total = resultado[0] if resultado[0] else 0
 
     conexao.close()
 
@@ -346,7 +353,6 @@ def financeiro():
         alugueis=alugueis,
         total=total
     )
-
 
 # =========================
 # 🟢 PAGAMENTO (NOVO - CORRIGIDO)

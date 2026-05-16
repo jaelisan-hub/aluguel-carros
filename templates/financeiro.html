@@ -53,6 +53,34 @@
             background: #007bff;
             padding: 10px;
             border-radius: 5px;
+            margin-right: 5px;
+        }
+
+        /* 🔎 BUSCA */
+        .busca{
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+
+        .busca input{
+            padding: 10px;
+            width: 60%;
+        }
+
+        .busca button{
+            padding: 10px;
+            width: 20%;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .delete{
+            background: red;
+            padding: 6px 10px;
+            border-radius: 5px;
+            color: white;
         }
 
     </style>
@@ -79,6 +107,19 @@
 
     </div>
 
+    <!-- 🔎 BUSCA -->
+    <div class="caixa">
+
+        <form method="GET" class="busca">
+
+            <input type="text" name="busca" placeholder="Buscar por cliente...">
+
+            <button type="submit">Buscar</button>
+
+        </form>
+
+    </div>
+
     <table>
 
         <tr>
@@ -89,6 +130,7 @@
             <th>Dias</th>
             <th>Diária</th>
             <th>Total</th>
+            <th>Ação</th>
 
         </tr>
 
@@ -102,6 +144,14 @@
             <td>{{ aluguel[3] }}</td>
             <td>R$ {{ aluguel[4] }}</td>
             <td>R$ {{ aluguel[5] }}</td>
+
+            <!-- 🗑️ EXCLUIR -->
+            <td>
+                <a class="delete"
+                   href="/excluir_aluguel/{{ aluguel[0] }}">
+                   Excluir
+                </a>
+            </td>
 
         </tr>
 
