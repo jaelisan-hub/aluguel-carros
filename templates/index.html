@@ -89,7 +89,7 @@ button:hover{
     background:#1d4ed8;
 }
 
-/* 🟢 ESTILO DA BUSCA */
+/* 🔎 BUSCA */
 .busca{
     margin-bottom:20px;
 }
@@ -137,9 +137,8 @@ button:hover{
     <div class="card" style="margin-top:30px;">
 
         <h2>📋 Clientes Cadastrados</h2>
-        
 
-        <!-- 🔎 BUSCA ADICIONADA -->
+        <!-- 🔎 BUSCA -->
         <form method="GET" class="busca">
             <input type="text" name="busca" placeholder="Buscar cliente...">
             <button type="submit">Buscar</button>
@@ -152,6 +151,13 @@ button:hover{
             <p><strong>Nome:</strong> {{ cliente[1] }}</p>
 
             <p><strong>Telefone:</strong> {{ cliente[2] }}</p>
+
+            <!-- 🗑️ EXCLUIR CLIENTE -->
+            <a href="/excluir/{{ cliente[0] }}"
+               style="background:red;color:white;padding:8px 12px;
+               border-radius:8px;text-decoration:none;display:inline-block;margin-top:10px;">
+               🗑️ Excluir
+            </a>
 
         </div>
 
