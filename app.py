@@ -95,10 +95,12 @@ def login():
         usuario_encontrado = cursor.fetchone()
 
         if usuario_encontrado:
-            session['usuario'] = usuario
-            return redirect('/')
+         session['usuario'] = usuario
+        return redirect('/')
+    else:
+     return "Login inválido"
 
-    return render_template('login.html')
+    
 
 
 # =========================
@@ -148,9 +150,12 @@ def home():
         telefone = request.form['telefone']
 
         cursor.execute(
-            'INSERT INTO clientes (nome, telefone, usuario) VALUES (%s, %s, %s)',
-            (nome, telefone, usuario)
-        )
+    'INSERT INTO clientes (nome, telefone, usuario) VALUES (%s, %s, %s)',
+    (nome, telefone, usuario)
+)
+   
+        
+        
 
         conexao.commit()
 
@@ -215,9 +220,10 @@ def carros():
         ano = request.form['ano']
 
         cursor.execute(
-            'INSERT INTO carros (modelo, marca, ano, usuario) VALUES (%s, %s, %s, %s)',
-            (modelo, marca, ano, usuario)
-        )
+    'INSERT INTO carros (modelo, marca, ano, usuario) VALUES (%s, %s, %s, %s)',
+    (modelo, marca, ano, usuario)
+)
+        
 
         conexao.commit()
 
@@ -285,12 +291,13 @@ def alugueis():
         total = dias * diaria
 
         cursor.execute(
-            '''
-            INSERT INTO alugueis (cliente, carro, dias, diaria, total, usuario)
-            VALUES (%s, %s, %s, %s, %s, %s)
-            ''',
-            (cliente, carro, dias, diaria, total, usuario)
-        )
+    '''
+    INSERT INTO alugueis (cliente, carro, dias, diaria, total, usuario)
+    VALUES (%s, %s, %s, %s, %s, %s)
+    ''',
+    (cliente, carro, dias, diaria, total, usuario)
+)
+        
 
         conexao.commit()
 
