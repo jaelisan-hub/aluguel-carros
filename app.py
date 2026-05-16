@@ -273,23 +273,22 @@ def alugueis():
 
         conexao.commit()
 
-    cursor.execute('SELECT * FROM alugueis')
-    lista_alugueis = cursor.fetchall()
+    # 🔎 BUSCA CORRIGIDA
+    busca = request.args.get('busca')
 
-    cursor.execute('SELECT nome FROM clientes')
-    clientes = cursor.fetchall()
+    if busca:
+        cursor.execute(
+            "SELECT * FROM alugueis WHERE cliente ILIKE %s",
+            ('%' + busca + '%',)
+        )
+    else:
+        cursor.execute("SELECT * FROM alugueis")
 
-    cursor.execute('SELECT modelo FROM carros')
-    carros = cursor.fetchall()
+    alugueis = cursor.fetchall()
 
     conexao.close()
 
-    return render_template(
-        'alugueis.html',
-        alugueis=lista_alugueis,
-        clientes=clientes,
-        carros=carros
-    )
+    return render_template('alugueis.html', alugueis=alugueis)
 
 
 # =========================
